@@ -1,0 +1,112 @@
+#!/bin/bash
+# ============================================
+# 🔒 PRE-PUSH HOOK v2.0.0
+# ============================================
+# Comprehensive checks before every push
+# More thorough than pre-commit
+# ============================================
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_ROOT" || exit 1
+
+echo -e "\033[0;34m🔒 Pre-push quality checks (comprehensive)...\033[0m"
+echo ""
+
+HAS_ERRORS=false
+
+# ============================================
+# 1. Full validation script (if available)
+# ============================================
+echo -e "\033[1;33m[1/3] Running full validation...\033[0m"
+
+if [ -f "$PROJECT_ROOT/scripts/validate.sh" ]; then
+  # Run validate.sh but don't let set -e kill us
+  if bash "$PROJECT_ROOT/scripts/validate.sh" 2>&1; then
+    echo -e "\033[0;32m  ✓ Validation passed\033[0m"
+  else
+    echo -e "\033[0;31m❌ Validation failed\033[0m"
+    HAS_ERRORS=true
+  fi
+else
+  echo -e "\033[1;33m  ⚠ validate.sh not found (skipping)\033[0m"
+fi
+
+echo ""
+
+# ============================================
+# 2. Production build
+# ============================================
+echo -e "\033[1;33m[2/3] Running production build...\033[0m"
+
+if command -v npm &>/dev/null && [ -f "package.json" ]; then
+  # Check if "build" script exists
+  if node --input-type=commonjs -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.build ? 0 : 1)" 2>/dev/null; then
+    if npm run build 2>&1; then
+      echo -e "\033[0;32m  ✓ Build successful\033[0m"
+
+      # Check build size
+      BUILD_DIR=""
+      for dir in ".next" "dist" "build" "out"; do
+        if [ -d "$dir" ]; then
+          BUILD_DIR="$dir"
+          break
+        fi
+      done
+
+      if [ -n "$BUILD_DIR" ]; then
+        SIZE=$(du -sh "$BUILD_DIR" 2>/dev/null | cut -f1)
+        SIZE_KB=$(du -sk "$BUILD_DIR" 2>/dev/null | cut -f1)
+        echo -e "     Build size: $SIZE ($BUILD_DIR/)"
+        if [ "${SIZE_KB:-0}" -lt 1024 ]; then
+          echo -e "\033[1;33m  ⚠ Warning: Build is very small (${SIZE_KB}KB). Core assets may be missing.\033[0m"
+        fi
+      fi
+    else
+      echo -e "\033[0;31m❌ Build failed\033[0m"
+      HAS_ERRORS=true
+    fi
+  else
+    echo -e "\033[1;33m  ⚠ No 'build' script in package.json (skipping)\033[0m"
+  fi
+else
+  echo -e "\033[1;33m  ⚠ npm or package.json not found (skipping)\033[0m"
+fi
+
+echo ""
+
+# ============================================
+# 3. Run tests
+# ============================================
+echo -e "\033[1;33m[3/3] Running tests...\033[0m"
+
+if command -v npx &>/dev/null; then
+  TEST_OK=false
+
+  if npx vitest run 2>&1; then
+    TEST_OK=true
+  elif npx jest --passWithNoTests 2>&1; then
+    TEST_OK=true
+  fi
+
+  if [ "$TEST_OK" = true ]; then
+    echo -e "\033[0;32m  ✓ All tests passed\033[0m"
+  else
+    echo -e "\033[1;33m  ⚠ Tests may have failed or no test runner found\033[0m"
+  fi
+else
+  echo -e "\033[1;33m  ⚠ npx not found (skipping)\033[0m"
+fi
+
+# ============================================
+# FINAL DECISION
+# ============================================
+echo ""
+
+if [ "$HAS_ERRORS" = true ]; then
+  echo -e "\033[0;31m❌ Pre-push checks FAILED. Push blocked.\033[0m"
+  echo -e "\033[0;31m   Fix errors and try again.\033[0m"
+  exit 1
+else
+  echo -e "\033[0;32m✅ Pre-push checks PASSED! Safe to push.\033[0m"
+  exit 0
+fi

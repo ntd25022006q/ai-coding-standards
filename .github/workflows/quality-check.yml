@@ -1,0 +1,230 @@
+# =============================================================================
+# TEMPLATE REPO INTEGRITY CHECK
+# =============================================================================
+# This CI runs on the ai-agent-coding-standards repo itself
+# It validates that all template files exist and are well-formed
+# Target projects get their own CI via configs/github/quality-check.yml
+# =============================================================================
+
+name: Repo Integrity
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: integrity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Job 1: Validate all template files exist
+  template-files:
+    name: Template Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check AI rule files
+        run: |
+          MISSING=0
+          for f in CLAUDE.md .cursorrules .clinerules .windsurfrules .github/copilot-instructions.md; do
+            if [ ! -f "$f" ] || [ ! -s "$f" ]; then
+              echo "::error::Missing or empty: $f"
+              MISSING=1
+            else
+              echo "✅ $f ($(wc -l < "$f") lines)"
+            fi
+          done
+          if [ "$MISSING" = "1" ]; then exit 1; fi
+
+      - name: Check documentation
+        run: |
+          MISSING=0
+          for f in docs/RULES.md docs/ANTI-PATTERNS.md docs/ARCHITECTURE.md docs/SECURITY.md docs/COMPARISON.md; do
+            if [ ! -f "$f" ] || [ ! -s "$f" ]; then
+              echo "::error::Missing or empty: $f"
+              MISSING=1
+            else
+              echo "✅ $f ($(wc -l < "$f") lines)"
+            fi
+          done
+          if [ "$MISSING" = "1" ]; then exit 1; fi
+
+      - name: Check config files
+        run: |
+          MISSING=0
+          for f in configs/eslint/eslint.config.mjs configs/prettier/.prettierrc configs/typescript/tsconfig.base.json configs/testing/vitest.config.ts configs/testing/tests-setup.example.tsx configs/github/quality-check.yml; do
+            if [ ! -f "$f" ] || [ ! -s "$f" ]; then
+              echo "::error::Missing or empty: $f"
+              MISSING=1
+            else
+              echo "✅ $f"
+            fi
+          done
+          if [ "$MISSING" = "1" ]; then exit 1; fi
+
+      - name: Check scripts and hooks
+        run: |
+          MISSING=0
+          for f in scripts/setup.sh scripts/validate.sh hooks/pre-commit hooks/pre-push; do
+            if [ ! -f "$f" ] || [ ! -s "$f" ]; then
+              echo "::error::Missing or empty: $f"
+              MISSING=1
+            else
+              echo "✅ $f"
+            fi
+          done
+          if [ "$MISSING" = "1" ]; then exit 1; fi
+
+      - name: Check root config files
+        run: |
+          MISSING=0
+          for f in package.json tsconfig.json eslint.config.mjs .prettierrc .prettierignore .gitignore .editorconfig .npmrc LICENSE README.md; do
+            if [ ! -f "$f" ] || [ ! -s "$f" ]; then
+              echo "::error::Missing or empty: $f"
+              MISSING=1
+            else
+              echo "✅ $f"
+            fi
+          done
+          if [ "$MISSING" = "1" ]; then exit 1; fi
+
+  # Job 2: Validate shell script syntax
+  shell-check:
+    name: Shell Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check all shell scripts
+        run: |
+          FAILED=0
+          for f in scripts/setup.sh scripts/validate.sh hooks/pre-commit hooks/pre-push; do
+            echo "Checking $f..."
+            if bash -n "$f" 2>&1; then
+              echo "✅ $f: syntax OK"
+            else
+              echo "::error::Syntax error in $f"
+              FAILED=1
+            fi
+          done
+          if [ "$FAILED" = "1" ]; then exit 1; fi
+      - name: Check scripts are executable-ready
+        run: |
+          for f in scripts/setup.sh scripts/validate.sh hooks/pre-commit hooks/pre-push; do
+            FIRST_LINE=$(head -1 "$f")
+            if echo "$FIRST_LINE" | grep -qE '^#!/bin/(ba)?sh'; then
+              echo "✅ $f: has shebang"
+            else
+              echo "::warning::$f: missing shebang"
+            fi
+          done
+
+  # Job 3: Validate JSON files
+  json-check:
+    name: JSON Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate all JSON files
+        run: |
+          FAILED=0
+          for f in package.json tsconfig.json configs/typescript/tsconfig.base.json .prettierrc mcp/mcp-config.json mcp/tools/optional-mcp-tools.json; do
+            if [ -f "$f" ]; then
+              echo "Checking $f..."
+              if python3 -m json.tool "$f" >/dev/null 2>&1; then
+                echo "✅ $f: valid JSON"
+              else
+                echo "::error::Invalid JSON in $f"
+                FAILED=1
+              fi
+            fi
+          done
+          if [ "$FAILED" = "1" ]; then exit 1; fi
+
+  # Job 4: Validate ESLint config loads
+  eslint-config:
+    name: ESLint Config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Verify ESLint config loads without error
+        run: |
+          npx eslint --print-config eslint.config.mjs >/dev/null 2>&1
+          echo "✅ ESLint config loaded successfully"
+
+  # Job 5: TypeScript config compilation
+  typescript-config:
+    name: TypeScript Config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+        working-directory: .
+
+  # Job 6: Security audit
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+
+  # Job 7: Setup dry-run test
+  setup-test:
+    name: Setup Script Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Create mock target project
+        run: |
+          mkdir -p /tmp/test-target
+          cd /tmp/test-target
+          git init
+          echo '{"name":"test-project","version":"1.0.0"}' > package.json
+          mkdir -p src
+          echo "export {};" > src/index.ts
+      - name: Run setup.sh
+        run: bash scripts/setup.sh /tmp/test-target
+      - name: Verify files were copied
+        run: |
+          MISSING=0
+          for f in CLAUDE.md .cursorrules .clinerules .windsurfrules .github/copilot-instructions.md .github/workflows/quality-check.yml docs/RULES.md docs/ANTI-PATTERNS.md docs/ARCHITECTURE.md docs/SECURITY.md docs/COMPARISON.md eslint.config.mjs .prettierrc tsconfig.base.json scripts/validate.sh .claude/mcp.json; do
+            if [ ! -f "/tmp/test-target/$f" ]; then
+              echo "::error::Setup failed to copy: $f"
+              MISSING=1
+            else
+              echo "✅ Copied: $f"
+            fi
+          done
+          if [ "$MISSING" = "1" ]; then exit 1; fi
+      - name: Verify hooks installed
+        run: |
+          if [ ! -f "/tmp/test-target/.git/hooks/pre-commit" ]; then
+            echo "::error::pre-commit hook not installed"
+            exit 1
+          fi
+          echo "✅ pre-commit hook installed"
+          if [ ! -f "/tmp/test-target/.git/hooks/pre-push" ]; then
+            echo "::error::pre-push hook not installed"
+            exit 1
+          fi
+          echo "✅ pre-push hook installed"

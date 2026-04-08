@@ -1,0 +1,106 @@
+# =============================================================================
+# QUALITY CHECK CI/CD - TARGET PROJECT TEMPLATE
+# =============================================================================
+# Copy this file to .github/workflows/quality-check.yml in your target project
+# Run: bash /path/to/ai-coding-standards/scripts/setup.sh .
+# =============================================================================
+
+name: Quality Check
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Gate 1: TypeScript type check
+  typecheck:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+
+  # Gate 2: ESLint
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx eslint . --max-warnings=0
+
+  # Gate 3: Tests
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run --coverage
+      - name: Check coverage threshold
+        run: |
+          if [ -f "coverage/coverage-summary.json" ]; then
+            COVERAGE=$(node -e "
+              const c = require('./coverage/coverage-summary.json');
+              const lines = c.total.lines.pct;
+              process.exit(lines >= 80 ? 0 : 1);
+            " 2>/dev/null)
+            if [ $? -ne 0 ]; then
+              echo "::warning::Test coverage is below 80%"
+            fi
+          fi
+
+  # Gate 4: Build
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+  # Gate 5: Security audit
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+
+  # Gate 6: Validation script
+  validate:
+    name: Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: bash scripts/validate.sh --ci
