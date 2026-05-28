@@ -419,4 +419,4 @@ All pull requests are validated by the CI pipeline. The `prepare` script automat
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) — Copyright &copy; 2026 Nguyen Tien Dat. All rights reserved.
