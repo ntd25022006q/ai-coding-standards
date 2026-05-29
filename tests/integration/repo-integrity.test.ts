@@ -21,7 +21,7 @@ const REQUIRED_FILES: FileSpec[] = [
   // AI rule files (5 agents)
   { path: 'CLAUDE.md', description: 'Claude rules' },
   { path: '.cursorrules', description: 'Cursor rules' },
-  { path: '.clinerules', description: 'Claude Code CLI rules' },
+  { path: '.clinerules', description: 'Cline AI rules' },
   { path: '.windsurfrules', description: 'Windsurf rules' },
   { path: '.github/copilot-instructions.md', description: 'GitHub Copilot rules' },
 

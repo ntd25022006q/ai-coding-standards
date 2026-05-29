@@ -17,7 +17,7 @@
 
 ## ✨ Features
 
-- **Multi-Agent Rules** — Configs for Cursor, Claude, Copilot, and Cline
+- **Multi-Agent Rules** — Configs for Cursor, Claude, Copilot, Cline, and Windsurf
 - **10-Point Validation** — Comprehensive quality gate suite
 - **MCP Integration** — Model Context Protocol tool definitions
 - **Zero Mock Data** — Real validation, no placeholder logic

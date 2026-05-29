@@ -16,7 +16,7 @@ The root cause is that AI agents lack "memory" of a project's coding standards. 
 
 ---
 
-## 2. Comparison of 6 Code Quality Methods
+## 2. Comparison of 5 Code Quality Methods
 
 ### Overview Table
 
