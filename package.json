@@ -1,6 +1,6 @@
 {
   "name": "ai-agent-coding-standards",
-  "version": "2.3.0",
+  "version": "0.1.0",
   "private": false,
   "description": "Enforce production-grade code quality across AI coding agents — rule files, strict configs, and a 10-point validation suite",
   "license": "MIT",

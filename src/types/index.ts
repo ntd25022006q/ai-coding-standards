@@ -1,9 +1,12 @@
 /**
  * Domain types for AI Coding Standards.
  *
- * Demonstrates strict interfaces, union types, and discriminated unions
- * with no `any` usage. All types follow the project's enforced coding
- * standards and serve as reference patterns for target projects.
+ * IMPORTANT: This project is a template and configuration distribution tool,
+ * not a runtime library. These types serve as reference patterns demonstrating
+ * strict interfaces, union types, and discriminated unions with no `any` usage.
+ *
+ * Target projects should replace these examples with their own domain types
+ * following the same patterns enforced by this tool.
  */
 
 /**

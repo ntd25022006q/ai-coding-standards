@@ -1,15 +1,18 @@
 # AI Coding Standards
 
-Enforce production-grade code quality across AI coding agents with rule files, strict configs, and a 10-point validation suite.
+A template and configuration distribution tool that enforces production-grade code quality across AI coding agents through rule files, strict configurations, and a 10-point validation suite.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/ntd25022006q/ai-coding-standards/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/ntd25022006q/ai-coding-standards/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Version: 2.3.0](https://img.shields.io/badge/Version-2.3.0-6f42c1.svg?style=flat-square)](https://github.com/ntd25022006q/ai-coding-standards)
+[![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-6f42c1.svg?style=flat-square)](https://github.com/ntd25022006q/ai-coding-standards)
 [![TypeScript Strict](https://img.shields.io/badge/TypeScript-Strict-3178C6.svg?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js >=20](https://img.shields.io/badge/Node.js->=20-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Test Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://github.com/ntd25022006q/ai-coding-standards)
 
 ---
+
+## Important Notice
+
+**This project is a template and configuration distribution tool, not a runtime library.** It provides rule files, configuration presets, git hooks, and validation scripts that you deploy to your own projects. The `src/` directory contains example utility functions and domain types solely so that ESLint and TypeScript have real code to validate and to demonstrate the coding standards this tool enforces. Consumers should use `npm run setup` to deploy templates to a target project, then replace the example source files with their own application code.
 
 ## What It Does
 
@@ -18,14 +21,45 @@ AI coding agents produce code quickly, but without enforcement they introduce sy
 It works through five defense layers, each catching what the previous one misses:
 
 1. **AI Context Injection** -- Rule files that agents read before writing code
-2. **Static Analysis & Compiler** -- Strict TypeScript and ESLint configurations
+2. **Static Analysis and Compiler** -- Strict TypeScript and ESLint configurations
 3. **Git Lifecycle Hooks** -- Pre-commit and pre-push hooks that block defective code
 4. **Automated Validation** -- A 10-point compliance scanner catching what the compiler misses
-5. **CI/CD Pipeline** -- A 5-job GitHub Actions workflow as the final gate
+5. **CI/CD Pipeline** -- A multi-job GitHub Actions workflow as the final gate
 
 The framework includes ready-to-deploy rule files for five AI agents (Cursor, Windsurf, Claude Code, Cline/Roo Code, and GitHub Copilot), production-grade configuration presets for ESLint, TypeScript, Prettier, and Vitest, and a single command (`npm run setup`) that deploys everything to any target project.
 
 ## Architecture
+
+This is a **template distribution tool**. Its architecture is designed around copying, not importing:
+
+```
+ai-coding-standards/ (this repo)
+    |
+    |  npm run setup / npx tsx scripts/setup.ts <target>
+    |
+    v
+your-project/ (target project)
+    +-- CLAUDE.md              (copied from this repo)
+    +-- .cursorrules           (copied from this repo)
+    +-- eslint.config.mjs      (copied from this repo)
+    +-- .prettierrc            (copied from this repo)
+    +-- tsconfig.base.json     (copied from this repo)
+    +-- hooks/pre-commit       (copied and activated)
+    +-- hooks/pre-push         (copied and activated)
+    +-- scripts/validate.ts    (copied for local validation)
+    +-- docs/                  (copied for reference)
+    +-- .claude/mcp.json       (copied for MCP server config)
+```
+
+The `src/` directory in this repository contains example source code (4 utility functions and 8 domain types) that serves three purposes:
+
+- Provides real code for ESLint and TypeScript to validate
+- Demonstrates the coding standards this tool enforces
+- Serves as a reference pattern for target projects
+
+Target projects should replace these examples with their own application code after running `npm run setup`.
+
+### Defense Layer Diagram
 
 ```mermaid
 flowchart LR
@@ -36,27 +70,7 @@ flowchart LR
     TSC -->|on commit| Hook1["pre-commit\n4 checks"]
     Hook1 -->|on push| Hook2["pre-push\n3 checks"]
     Hook2 -->|scan| Validate["10-point\nvalidation"]
-    Validate -->|CI gate| CI["5 CI jobs"]
-```
-
-```mermaid
-flowchart TD
-    subgraph L1["Layer 1: AI Context Injection"]
-        R1[".cursorrules"] ~~~ R2[".clinerules"] ~~~ R3["CLAUDE.md"] ~~~ R4[".windsurfrules"] ~~~ R5["copilot-instructions.md"]
-    end
-    subgraph L2["Layer 2: Static Analysis"]
-        TS["strict: true\nnoUncheckedIndexedAccess"] ~~~ ES["no-explicit-any\nno-floating-promises"]
-    end
-    subgraph L3["Layer 3: Git Hooks"]
-        PC["pre-commit\n4 checks"] ~~~ PP["pre-push\n3 checks"]
-    end
-    subgraph L4["Layer 4: Validation Script"]
-        V["10-point scanner\npatterns, secrets, sizes"]
-    end
-    subgraph L5["Layer 5: CI/CD"]
-        C1["typecheck"] ~~~ C2["lint"] ~~~ C3["test+coverage"] ~~~ C4["format"] ~~~ C5["validate"]
-    end
-    L1 --> L2 --> L3 --> L4 --> L5
+    Validate -->|CI gate| CI["CI jobs"]
 ```
 
 ## Features
@@ -68,11 +82,11 @@ flowchart TD
 | Strict ESLint Config      | Zero-tolerance flat config with type-aware rules and Prettier compatibility                                    |
 | Strict TypeScript Base    | `strict: true` with `noUncheckedIndexedAccess`, `noImplicitReturns`, `verbatimModuleSyntax`                    |
 | Git Hook Guards           | Pre-commit (4 checks) and pre-push (3 checks) blocking defective code at the git boundary                      |
-| CI/CD Pipeline            | 5-job GitHub Actions workflow (typecheck, lint, test+coverage, format-check, validate)                         |
+| CI/CD Pipeline            | Multi-job GitHub Actions workflow (typecheck, lint, test, format-check, validate)                              |
 | One-Command Setup         | `npm run setup` deploys all rules, configs, hooks, and docs to any target project                              |
 | 30 Absolute Bans          | Catalog of forbidden patterns with correct alternatives                                                        |
 | MCP Server Configs        | Pre-configured Model Context Protocol servers (GitHub, filesystem, search, memory, fetch, sequential-thinking) |
-| 100% Test Coverage        | 38 tests across 4 test files with full statement/branch/function/line coverage                                 |
+| Dependabot Integration    | Automated dependency update configuration for npm and GitHub Actions                                            |
 
 ## Quick Start
 
@@ -133,22 +147,6 @@ npm run check:all
 
 The 10-point validation script (`scripts/validate.ts`) scans the project for compliance violations. It is written in TypeScript and runs via `tsx`, working natively on Windows, macOS, and Linux.
 
-```mermaid
-flowchart TD
-    Start(["npm run validate"]) --> C1["1. Project Integrity"]
-    C1 --> C2["2. Compiler Strictness"]
-    C2 --> C3["3. Forbidden Patterns"]
-    C3 --> C4["4. Console Statements"]
-    C4 --> C5["5. Empty Catch Blocks"]
-    C5 --> C6["6. Hardcoded Secrets"]
-    C6 --> C7["7. File Size Limits"]
-    C7 --> C8["8. TypeScript Compilation"]
-    C8 --> C9["9. ESLint Cleanliness"]
-    C9 --> C10["10. Test Suite"]
-    C10 -->|all pass| Pass(["exit 0"])
-    C10 -->|errors| Fail(["exit 1"])
-```
-
 ### Check Details
 
 | #   | Check                  | Severity | What It Catches                                                         |
@@ -170,13 +168,13 @@ The script exits with code 0 if all checks pass (warnings allowed) and code 1 if
 
 Five rule files, each tailored to a specific AI coding agent. All share the same core directives -- 30 absolute bans, strict TypeScript rules, mandatory error handling, testing requirements, and security checklists -- but differ in how each agent loads them.
 
-| Agent            | Rule File                         | Lines |
-| ---------------- | --------------------------------- | ----- |
-| Cursor           | `.cursorrules`                    | 442   |
-| Windsurf         | `.windsurfrules`                  | 442   |
-| Claude Code      | `CLAUDE.md`                       | 580   |
-| Cline / Roo Code | `.clinerules`                     | 438   |
-| GitHub Copilot   | `.github/copilot-instructions.md` | ~400  |
+| Agent            | Rule File                         |
+| ---------------- | --------------------------------- |
+| Cursor           | `.cursorrules`                    |
+| Windsurf         | `.windsurfrules`                  |
+| Claude Code      | `CLAUDE.md`                       |
+| Cline / Roo Code | `.clinerules`                     |
+| GitHub Copilot   | `.github/copilot-instructions.md` |
 
 ### 30 Absolute Bans
 
@@ -349,12 +347,13 @@ ai-coding-standards/
 ├── eslint.config.mjs                  # Root ESLint config
 ├── tsconfig.json                      # Root TypeScript config
 ├── vitest.config.ts                   # Vitest test runner config
-├── package.json                       # v2.3.0, ESM, zero runtime deps
+├── package.json                       # v0.1.0, ESM, zero runtime deps
 │
 ├── .github/
 │   ├── copilot-instructions.md        # GitHub Copilot rules
+│   ├── dependabot.yml                 # Automated dependency updates
 │   └── workflows/
-│       ├── ci.yml                     # 5-job CI pipeline
+│       ├── ci.yml                     # CI pipeline
 │       └── quality-check.yml          # Extended quality workflow
 │
 ├── configs/
@@ -392,12 +391,35 @@ ai-coding-standards/
 │
 └── tests/
     ├── unit/
-    │   ├── utils.test.ts              # 24 unit tests
-    │   └── exports.test.ts            # 3 barrel export tests
+    │   ├── utils.test.ts              # Unit tests
+    │   └── exports.test.ts            # Barrel export tests
     └── integration/
-        ├── eslint-config.test.ts      # 5 ESLint config tests
-        └── repo-integrity.test.ts     # 6 repo integrity tests
+        ├── eslint-config.test.ts      # ESLint config tests
+        └── repo-integrity.test.ts     # Repo integrity tests
 ```
+
+## Security
+
+### Vulnerability Reporting
+
+If you discover a security vulnerability, please do not open a public GitHub issue. Instead, report it through [GitHub's private vulnerability reporting](https://github.com/ntd25022006q/ai-coding-standards/security/advisories/new). See [SECURITY.md](SECURITY.md) for the full disclosure policy.
+
+### Built-in Security Measures
+
+- **No hardcoded secrets**: All MCP configurations use environment variable substitution (`${GITHUB_TOKEN}`, `${BRAVE_API_KEY}`) rather than literal credentials.
+- **Secret scanning**: The 10-point validation suite scans for hardcoded passwords, API keys, and token patterns.
+- **Pre-commit hooks**: Block commits containing forbidden patterns or potential secrets.
+- **CI security audit**: The quality-check workflow includes an `npm audit --audit-level=high` step.
+- **Dependabot**: Automated dependency updates are configured for both npm packages and GitHub Actions.
+- **Environment variables**: A comprehensive `.env.example` documents all required variables with instructions on obtaining each one.
+
+### Environment Variables
+
+| Variable         | Required | Description                                | How to Obtain                                    |
+| ---------------- | -------- | ------------------------------------------ | ------------------------------------------------ |
+| `GITHUB_TOKEN`   | No       | GitHub API token for the MCP GitHub server | [GitHub Settings](https://github.com/settings/tokens) |
+| `BRAVE_API_KEY`  | No       | Brave Search API key for MCP search server | [Brave Search API](https://brave.com/search/api/)     |
+| `TAVILY_API_KEY` | No       | Tavily API key for optional MCP search     | [Tavily](https://tavily.com/)                         |
 
 ## Contributing
 
@@ -417,6 +439,8 @@ ai-coding-standards/
 
 All pull requests are validated by the CI pipeline. The `prepare` script automatically activates git hooks after `npm install`, so pre-commit and pre-push checks run locally before you push.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
 ## License
 
-[MIT](LICENSE) — Copyright &copy; 2026 Nguyen Tien Dat. All rights reserved.
+[MIT](LICENSE) -- Copyright (c) 2026 Nguyen Tien Dat. All rights reserved.

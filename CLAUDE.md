@@ -1,6 +1,6 @@
 # 🔒 AI AGENT MANDATORY RULES - CLAUDE EDITION
 
-# Version: 2.3.0 | Last Updated: 2026-04-08
+# Version: 0.1.0 | Last Updated: 2026-04-08
 
 # License: MIT
 

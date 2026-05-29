@@ -1,11 +1,16 @@
 // =============================================================================
 // AI Coding Standards — Example Source Files
 // =============================================================================
-// These files serve two purposes:
-// 1. ESLint + TypeScript have real code to validate (no more "nothing to lint")
-// 2. Demonstrates the coding standards this repo enforces
-// =============================================================================
-// Target projects should place their code under src/ following the same patterns.
+// IMPORTANT: This project is a TEMPLATE AND CONFIGURATION DISTRIBUTION TOOL,
+// not a runtime library. The source files below exist for three reasons:
+//
+// 1. ESLint + TypeScript have real code to validate (avoids "nothing to lint")
+// 2. They demonstrate the coding standards this repository enforces
+// 3. They provide example type patterns for target projects to follow
+//
+// Consumers should NOT install this package as a runtime dependency.
+// Instead, use `npm run setup` to deploy rules, configs, and hooks to a
+// target project, then replace these example files with real application code.
 // =============================================================================
 
 /**

@@ -2,8 +2,13 @@
  * @module ai-coding-standards
  *
  * Public API surface for the `ai-agent-coding-standards` package.
- * Re-exports every utility function and domain type so consumers can
- * import from a single entry point:
+ *
+ * IMPORTANT: This project is a template and configuration distribution tool,
+ * not a runtime library. These exports exist so that ESLint and TypeScript
+ * have real code to validate, and to demonstrate the coding standards this
+ * repository enforces. Consumers should use `npm run setup` to deploy rules,
+ * configs, and hooks to their own project, then replace these example
+ * utilities with real application code.
  *
  * ```ts
  * import { formatCurrency, type User, type ApiResponse } from 'ai-agent-coding-standards';
