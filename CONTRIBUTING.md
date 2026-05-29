@@ -102,17 +102,17 @@ type(scope): description
 
 ### Types
 
-| Type       | Description                            |
-| ---------- | -------------------------------------- |
-| `feat`     | A new feature                          |
-| `fix`      | A bug fix                              |
-| `docs`     | Documentation changes                  |
-| `style`    | Code style changes (formatting, etc.)  |
+| Type       | Description                             |
+| ---------- | --------------------------------------- |
+| `feat`     | A new feature                           |
+| `fix`      | A bug fix                               |
+| `docs`     | Documentation changes                   |
+| `style`    | Code style changes (formatting, etc.)   |
 | `refactor` | Code refactoring without feature change |
-| `test`     | Adding or updating tests               |
-| `chore`    | Maintenance tasks, dependency updates  |
-| `ci`       | CI/CD configuration changes            |
-| `perf`     | Performance improvements               |
+| `test`     | Adding or updating tests                |
+| `chore`    | Maintenance tasks, dependency updates   |
+| `ci`       | CI/CD configuration changes             |
+| `perf`     | Performance improvements                |
 
 ### Examples
 
@@ -135,17 +135,20 @@ ci(workflows): add dependency caching to CI pipeline
 ## Pull Request Process
 
 1. **Update your branch** with the latest upstream changes:
+
    ```bash
    git fetch upstream
    git rebase upstream/main
    ```
 
 2. **Run the full quality pipeline** before pushing:
+
    ```bash
    npm run check:all
    ```
 
 3. **Push your branch** to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -174,15 +177,15 @@ feat(scope): description
 
 Before submitting a pull request, ensure all of the following pass:
 
-| Check              | Command               | Requirement             |
-| ------------------ | --------------------- | ----------------------- |
-| TypeScript         | `npm run typecheck`   | 0 errors                |
-| ESLint             | `npm run lint`        | 0 errors, 0 warnings   |
-| Prettier           | `npm run format:check`| All files formatted     |
-| Tests              | `npm run test`        | All tests pass          |
-| Test Coverage      | `npm run test:coverage`| >= 80% across metrics  |
-| Validation Suite   | `npm run validate`    | 0 errors                |
-| Full Pipeline      | `npm run check:all`   | All checks pass         |
+| Check            | Command                 | Requirement           |
+| ---------------- | ----------------------- | --------------------- |
+| TypeScript       | `npm run typecheck`     | 0 errors              |
+| ESLint           | `npm run lint`          | 0 errors, 0 warnings  |
+| Prettier         | `npm run format:check`  | All files formatted   |
+| Tests            | `npm run test`          | All tests pass        |
+| Test Coverage    | `npm run test:coverage` | >= 80% across metrics |
+| Validation Suite | `npm run validate`      | 0 errors              |
+| Full Pipeline    | `npm run check:all`     | All checks pass       |
 
 ### Quick Check
 

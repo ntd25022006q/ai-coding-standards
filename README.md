@@ -86,7 +86,7 @@ flowchart LR
 | One-Command Setup         | `npm run setup` deploys all rules, configs, hooks, and docs to any target project                              |
 | 30 Absolute Bans          | Catalog of forbidden patterns with correct alternatives                                                        |
 | MCP Server Configs        | Pre-configured Model Context Protocol servers (GitHub, filesystem, search, memory, fetch, sequential-thinking) |
-| Dependabot Integration    | Automated dependency update configuration for npm and GitHub Actions                                            |
+| Dependabot Integration    | Automated dependency update configuration for npm and GitHub Actions                                           |
 
 ## Quick Start
 
@@ -415,8 +415,8 @@ If you discover a security vulnerability, please do not open a public GitHub iss
 
 ### Environment Variables
 
-| Variable         | Required | Description                                | How to Obtain                                    |
-| ---------------- | -------- | ------------------------------------------ | ------------------------------------------------ |
+| Variable         | Required | Description                                | How to Obtain                                         |
+| ---------------- | -------- | ------------------------------------------ | ----------------------------------------------------- |
 | `GITHUB_TOKEN`   | No       | GitHub API token for the MCP GitHub server | [GitHub Settings](https://github.com/settings/tokens) |
 | `BRAVE_API_KEY`  | No       | Brave Search API key for MCP search server | [Brave Search API](https://brave.com/search/api/)     |
 | `TAVILY_API_KEY` | No       | Tavily API key for optional MCP search     | [Tavily](https://tavily.com/)                         |

@@ -25,21 +25,21 @@ When reporting a vulnerability, please provide:
 
 ### Response Timeline
 
-| Stage | Target Time |
-|-------|-------------|
-| Acknowledgment of report | Within 48 hours |
-| Initial assessment | Within 5 business days |
-| Status update | Within 10 business days |
-| Resolution | Varies by severity |
+| Stage                    | Target Time             |
+| ------------------------ | ----------------------- |
+| Acknowledgment of report | Within 48 hours         |
+| Initial assessment       | Within 5 business days  |
+| Status update            | Within 10 business days |
+| Resolution               | Varies by severity      |
 
 ### Severity Classification
 
-| Severity | Description | Example |
-|----------|-------------|---------|
+| Severity | Description                                | Example                              |
+| -------- | ------------------------------------------ | ------------------------------------ |
 | Critical | Remote code execution, credential exposure | Hardcoded secrets in committed files |
-| High | Significant security bypass | Flawed validation allowing injection |
-| Medium | Limited security impact | Misconfigured permissions |
-| Low | Minimal security impact | Informational findings |
+| High     | Significant security bypass                | Flawed validation allowing injection |
+| Medium   | Limited security impact                    | Misconfigured permissions            |
+| Low      | Minimal security impact                    | Informational findings               |
 
 ### Disclosure Policy
 
