@@ -1,8 +1,6 @@
-<div align="center">
+# AI Coding Standards
 
-# 🤖 AI Coding Standards
-
-**Bộ template distribution tool — cài đặt rule files, ESLint/Prettier/TS configs, và git hooks vào project của bạn qua 1 lệnh `npm run setup`.**
+**A template distribution tool that installs AI-agent rule files, ESLint/Prettier/TypeScript configs, and Git hooks into a target project with a single `npm run setup` command.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -11,105 +9,142 @@
 [![ESLint](https://img.shields.io/badge/ESLint-9-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
 [![Prettier](https://img.shields.io/badge/Prettier-3-F7B93E?logo=prettier&logoColor=black)](https://prettier.io/)
 
-</div>
+---
+
+## Honest Disclosure — Read First
+
+This repository is **not a runtime library**. It is a **template distribution tool**: a curated collection of rule files (CLAUDE.md, .cursorrules, .clinerules, .windsurfrules, copilot-instructions.md), config files (ESLint, Prettier, TypeScript), and Git hooks (pre-commit, pre-push) packaged for deployment into another project via a single command.
+
+### What this repo does
+
+- Installs 5 AI-agent rule files into a target project for Cursor, Claude, Copilot, Cline, and Windsurf.
+- Installs ESLint 9 flat config, Prettier 3, and TypeScript strict-mode `tsconfig`.
+- Installs `pre-commit` and `pre-push` hooks that block commits when validation fails.
+- Provides `scripts/validate.sh` and `scripts/validate.ts` running 10 quality checks (file size, `console.log` detection, empty catch blocks, secret patterns, etc.).
+- Ships 38 unit and integration tests that verify the template itself.
+
+### What this repo does not do
+
+- **Not a runtime dependency.** `src/` contains only 3 demo utility functions (`formatCurrency`, `clampValue`, `safeJsonParse`). Do not `require('ai-agent-coding-standards')` in production code.
+- **Not a replacement for specialized ESLint plugins** such as `eslint-plugin-react`, `@typescript-eslint/eslint-plugin`, or `eslint-plugin-security`. The ESLint config here is a starting reference, not a comprehensive ruleset.
+- **Not a CI/CD service.** Validation runs as a local shell script. There is no dashboard, no build artifact signing, and no centralized reporting.
+- **Not a replacement for SonarQube or CodeQL.** There is no taint analysis, no data-flow analysis, and no SAST capability. The 10-point validation is pattern-based static analysis only.
+- **Tests do not verify the target project after setup.** They verify the template itself. Users must run their own tests after `npm run setup`.
+
+### Intended usage
+
+```bash
+# From your project root
+git clone https://github.com/ntd25022006q/ai-coding-standards.git /tmp/acs
+cd /tmp/acs
+npm install
+npm run setup /path/to/your/project
+```
+
+Then **replace** `src/` and `tests/` in the target project with your real code. The template is a starting point, not a final solution.
 
 ---
 
-## ⚠️ Honest Disclosure — Repo này là gì và không phải là gì?
+## Features
 
-Repo này **KHÔNG phải là runtime library**. Nó là **template distribution tool**: một bộ sưu tập các rule files (CLAUDE.md, .cursorrules, .clinerules, .windsurfrules, copilot-instructions.md), config files (ESLint, Prettier, TypeScript), và git hooks (pre-commit, pre-push) được đóng gói để deploy vào project khác qua 1 lệnh.
+- **5 AI-agent rule files** — Cursor (`.cursorrules`), Claude (`CLAUDE.md`), Copilot (`copilot-instructions.md`), Cline (`.clinerules`), Windsurf (`.windsurfrules`)
+- **ESLint 9 flat config** — Strict TypeScript-aware ruleset
+- **Prettier 3** — Consistent code formatting
+- **TypeScript strict mode** — `tsconfig.base.json` with `strict: true` and `noUncheckedIndexedAccess: true`
+- **Git hooks** — `pre-commit` and `pre-push` shell scripts that run validation
+- **10-point validation suite** — File size, console statements, empty catch blocks, secret patterns, mock data, debugger statements, dependency guard, type errors, lint errors, format check
+- **MCP integration** — `mcp-config.json` template for Model Context Protocol tool definitions
 
-| Repo này LÀM                                                                                                            | Repo này KHÔNG làm                                                                                                |
-| ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Cài đặt 5 AI rule files vào project đích (Cursor, Claude, Copilot, Cline, Windsurf)                                     | Không phải runtime dependency — `src/` chỉ có 3 utility function demo (formatCurrency, clampValue, safeJsonParse) |
-| Cài đặt ESLint 9 flat config, Prettier 3, tsconfig strict mode                                                          | Không thay thế được cho ESLint plugin riêng biệt (eslint-plugin-react, typescript-eslint) — chỉ reference config  |
-| Cài đặt pre-commit + pre-push hook để chặn commit khi validate fail                                                     | Không phải CI/CD service — chỉ là shell script chạy local                                                         |
-| Cung cấp script `validate.sh` / `validate.ts` chạy 10 quality check (file size, console.log, empty catch, secrets, ...) | Không thay thế cho SonarQube / CodeQL — không có taint analysis, không có SAST                                    |
-| Có 38 unit test + integration test tự kiểm tra                                                                          | Test chỉ verify chính template, không verify project đích sau khi setup                                           |
+---
 
-**Cách dùng đúng**: clone repo này, chạy `npm run setup .` từ project của bạn, rồi **replace** `src/` và `tests/` bằng code thật của bạn. Đừng `require('ai-agent-coding-standards')` trong production code.
-
-## ✨ Features
-
-- **Multi-Agent Rules** — Configs for Cursor, Claude, Copilot, Cline, and Windsurf
-- **10-Point Validation** — Comprehensive quality gate suite
-- **MCP Integration** — Model Context Protocol tool definitions
-- **Zero Mock Data** — Real validation, no placeholder logic
-- **Strict Enforcement** — ESLint + Prettier + TypeScript strict mode
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Category   | Technology                   |
 | ---------- | ---------------------------- |
 | Language   | TypeScript 5                 |
-| Testing    | Vitest 3                     |
+| Testing    | Vitest 3 (38 tests)          |
 | Linting    | ESLint 9                     |
 | Formatting | Prettier 3                   |
 | Runtime    | Node.js 20+                  |
 | Config     | MCP (Model Context Protocol) |
 
-## 🚀 Getting Started
+---
 
-### Prerequisites
+## Available Scripts
 
-- Node.js 20+ and npm 10+
+| Script                  | Description                                                  |
+| ----------------------- | ------------------------------------------------------------ |
+| `npm run setup`         | Install rule files, configs, and hooks into a target project |
+| `npm run validate`      | Run the 10-point validation suite                            |
+| `npm run lint`          | Run ESLint                                                   |
+| `npm run typecheck`     | Run `tsc --noEmit`                                           |
+| `npm run format:check`  | Verify Prettier formatting                                   |
+| `npm run test`          | Run Vitest                                                   |
+| `npm run test:coverage` | Run Vitest with coverage report                              |
+| `npm run build`         | Verify TypeScript compiles                                   |
+| `npm run check:all`     | Run all checks sequentially                                  |
 
-### Installation
+---
 
-```bash
-# Clone the repository
-git clone https://github.com/ntd25022006q/ai-coding-standards.git
-cd ai-coding-standards
-
-# Install dependencies
-npm install
-
-# Run validation suite
-npm run validate
-
-# Run all checks
-npm run check:all
-```
-
-### Available Scripts
-
-| Script                  | Description                       |
-| ----------------------- | --------------------------------- |
-| `npm run validate`      | Run the 10-point validation suite |
-| `npm run lint`          | Check code with ESLint            |
-| `npm run typecheck`     | TypeScript compilation check      |
-| `npm run format:check`  | Verify Prettier formatting        |
-| `npm run test`          | Run Vitest test suite             |
-| `npm run test:coverage` | Run tests with coverage report    |
-| `npm run build`         | Verify TypeScript compiles        |
-| `npm run check:all`     | Run all checks sequentially       |
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 ai-coding-standards/
-├── src/                # Source code and utilities
-│   ├── index.ts        # Main entry point
-│   ├── types/          # TypeScript type definitions
-│   └── lib/            # Shared utilities
-├── mcp/                # Model Context Protocol configs
-│   ├── mcp-config.json # MCP server configuration
-│   └── tools/          # MCP tool definitions
-├── hooks/              # Git hooks (pre-commit, pre-push)
-├── scripts/            # Setup and validation scripts
-└── .github/workflows/  # CI/CD pipeline definitions
+├── src/
+│   ├── index.ts                # Public exports (demo utilities only)
+│   ├── types/                  # TypeScript type definitions
+│   └── lib/                    # Utility functions (formatCurrency, clampValue, safeJsonParse)
+├── configs/
+│   ├── eslint/                 # ESLint 9 flat config
+│   ├── prettier/               # Prettier config
+│   └── typescript/             # tsconfig.base.json
+├── hooks/                      # pre-commit, pre-push shell scripts
+├── scripts/
+│   ├── setup.sh / setup.ts     # Template installer
+│   └── validate.sh / validate.ts  # 10-point validation
+├── rules/                      # CLAUDE.md, .cursorrules, .clinerules, .windsurfrules, copilot-instructions.md
+├── mcp/
+│   ├── mcp-config.json
+│   └── tools/                  # MCP tool definitions
+├── tests/
+│   ├── unit/                   # Vitest unit tests
+│   └── integration/            # Repo integrity tests
+└── .github/workflows/          # CI/CD pipeline
 ```
 
-## 🧪 Testing
+---
+
+## Testing
 
 ```bash
-# Run tests
 npm run test
-
-# Run with coverage
 npm run test:coverage
 ```
 
-## 📄 License
+The test suite includes:
 
-MIT -- Copyright (c) 2026 Nguyen Tien Dat. All rights reserved.
+- `tests/unit/utils.test.ts` — 7 tests for `formatCurrency` (including edge cases: NaN, negative numbers, Infinity)
+- `tests/unit/exports.test.ts` — Verifies public API exports
+- `tests/integration/repo-integrity.test.ts` — Verifies all 30+ required template files exist
+- `tests/integration/eslint-config.test.ts` — Verifies ESLint config is valid and loadable
+
+---
+
+## Alternatives
+
+For production linting and code quality, consider:
+
+| Use case                 | Recommended tool                                                                                   |
+| ------------------------ | -------------------------------------------------------------------------------------------------- |
+| TypeScript ESLint rules  | [`@typescript-eslint/eslint-plugin`](https://typescript-eslint.io/)                                |
+| React lint rules         | [`eslint-plugin-react`](https://github.com/jsx-eslint/eslint-plugin-react)                         |
+| Security lint rules      | [`eslint-plugin-security`](https://github.com/eslint-community/eslint-plugin-security)             |
+| Accessibility lint rules | [`eslint-plugin-jsx-a11y`](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)                   |
+| Curated Cursor rules     | [`awesome-cursorrules`](https://github.com/PatrickJS/awesome-cursorrules) (10k+ stars)             |
+| SAST / taint analysis    | [SonarQube](https://www.sonarsource.com/products/sonarqube/), [CodeQL](https://codeql.github.com/) |
+
+---
+
+## License
+
+MIT License — see [LICENSE](LICENSE). Copyright (c) 2026 Nguyen Tien Dat.
