@@ -86,6 +86,44 @@ Then **replace** `src/` and `tests/` in the target project with your real code. 
 
 ---
 
+## Architecture
+
+```mermaid
+flowchart LR
+    Target[Your project root] --> Setup[npm run setup]
+
+    Setup --> Install{Install}
+
+    Install --> Rules[5 AI rule files]
+    Install --> Configs[3 config files]
+    Install --> Hooks[2 git hooks]
+
+    Rules --> R1[.cursorrules]
+    Rules --> R2[CLAUDE.md]
+    Rules --> R3[.clinerules]
+    Rules --> R4[.windsurfrules]
+    Rules --> R5[copilot-instructions.md]
+
+    Configs --> C1[eslint.config.mjs<br/>ESLint 9 flat config]
+    Configs --> C2[.prettierrc<br/>Prettier 3]
+    Configs --> C3[tsconfig.base.json<br/>strict mode]
+
+    Hooks --> H1[pre-commit<br/>runs validate.sh]
+    Hooks --> H2[pre-push<br/>runs validate.sh]
+
+    H1 & H2 --> Validate[validate.sh<br/>10-point check]
+    Validate --> V1[File size]
+    Validate --> V2[console.log in code]
+    Validate --> V3[Empty catch blocks]
+    Validate --> V4[Secret patterns]
+    Validate --> V5[Mock data]
+    Validate --> V6[Debugger statements]
+    Validate --> V7[Banned packages]
+    Validate --> V8[Type errors]
+    Validate --> V9[Lint errors]
+    Validate --> V10[Format check]
+```
+
 ## Project Structure
 
 ```
