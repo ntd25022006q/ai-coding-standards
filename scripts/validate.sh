@@ -237,14 +237,36 @@ echo ""
 echo -e "${YELLOW}[4/10] Scanning for console statements...${NC}"
 
 if [ -d "src/" ]; then
-  CONSOLE_COUNT=$(search_count "console\.log" "src/")
+  # Đếm số file có console.log NẰM TRONG CODE THẬT (không tính comment).
+  # False positive trước đây: báo console.log trong JSDoc example.
+  # Giải pháp: lọc ra các dòng bắt đầu bằng marker comment (*, //, /*, #)
+  # trước khi đếm file có match.
+  if command -v rg &>/dev/null; then
+    # ripgrep path: tìm console.log, exclude dòng comment bằng --replace + regex
+    CONSOLE_COUNT=$(rg -l "console\.log" -g '*.ts' -g '*.tsx' "src/" 2>/dev/null | while read -r f; do
+      if rg -n "console\.log" "$f" 2>/dev/null | grep -qvE '^\s*[0-9]+:\s*(\*|//|/\*|#|<!--)' ; then
+        echo "$f"
+      fi
+    done | wc -l | tr -d ' ')
+  else
+    # grep fallback: đếm file có console.log ngoài comment
+    CONSOLE_COUNT=0
+    while IFS= read -r f; do
+      if [ -f "$f" ]; then
+        if grep -nE "console\.log" "$f" 2>/dev/null | grep -qvE '^[0-9]+:\s*(\*|//|/\*|#|<!--)'; then
+          CONSOLE_COUNT=$((CONSOLE_COUNT + 1))
+        fi
+      fi
+    done < <(find "src/" -type f \( -name '*.ts' -o -name '*.tsx' \) 2>/dev/null)
+  fi
+  CONSOLE_COUNT="${CONSOLE_COUNT:-0}"
 
   if [ "$CONSOLE_COUNT" -gt 0 ]; then
     log_warn "Found console statements in ${CONSOLE_COUNT} file(s)"
     echo -e "      Use structured logger (pino/winston) instead of console"
     WARNINGS=$((WARNINGS + 1))
   else
-    log_ok "No console statements found"
+    log_ok "No console statements found (comment examples are ignored)"
   fi
 else
   log_warn "src/ directory not found (skipped)"
